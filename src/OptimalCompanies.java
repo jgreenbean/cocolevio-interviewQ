@@ -2,8 +2,13 @@ import java.util.ArrayList;
 
 public class OptimalCompanies {
 	
+	/*
+	 * Using knapsack problem for reference as the problem is similar
+	 * */
+	
 	public static ArrayList<Object> materialRequests;
 	public static int[][] table;
+	public static final int TOTAL_MATERIAL = 30; // total material company can provide
 	
 	static class companyNode {
 		String name;
@@ -19,11 +24,14 @@ public class OptimalCompanies {
 	}
 	
 	public static void main(String[] args) {
-		int totalMaterial = 20; // total material company can provide
 		materialRequests = new ArrayList();
 		addCompanies();
-		table = buildKnapsackTable(totalMaterial);
+		table = buildKnapsackTable();
+		
+		// print out companies to sell materials
+		findCompanies(table);
 	}
+	
 
 	private static void addCompanies() {
 		materialRequests.add(new companyNode("A", 1, 1));
@@ -38,10 +46,10 @@ public class OptimalCompanies {
 		materialRequests.add(new companyNode("J", 10, 30));
 	}
 	
-	// problem is similar to knapsack problem
-	private static int[][] buildKnapsackTable(int totalMaterial) {
+
+	private static int[][] buildKnapsackTable() {
 		int row = materialRequests.size();
-		int col = totalMaterial;
+		int col = TOTAL_MATERIAL;
 		int[][] result = new int[row + 1][col + 1];
 
 		for(int r = 1; r <= row; r++) {
@@ -57,4 +65,24 @@ public class OptimalCompanies {
 		}
 		return result;
 	}
+	
+	
+	// tracing back through table to find companies that give the max profit
+	public static void findCompanies(int[][] table) {
+		int row = table.length - 1;
+		int col = table[0].length - 1;
+		int maxProfit = table[row][col];
+		while(maxProfit != 0 && row > 0 && col > 0) {
+			if(table[row - 1][col] != maxProfit) {
+				companyNode c = ((companyNode)materialRequests.get(row - 1));
+				System.out.print(c.name + " ");
+				col = col - c.amount;
+				row = row - 1;
+				maxProfit = table[row][col];
+			} else {
+				row = row - 1;
+			}
+		}
+	}
+	
 }
